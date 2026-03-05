@@ -1,0 +1,187 @@
+-- [[ 🌌 REBELDE X DRYX HUB - BATTLEGROUNDS EDITION ]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda"
+local ACCENT_COLOR = Color3.fromRGB(0, 170, 255)
+
+-- Variáveis de Estado
+local _G = _G or {}
+_G.HitboxSize = 2
+_G.HitboxEnabled = false
+_G.WalkSpeed = 16
+_G.JumpPower = 50
+
+-- Limpeza e UI
+for _, v in pairs(Lighting:GetChildren()) do if v:IsA("BlurEffect") then v:Destroy() end end
+local gui = Instance.new("ScreenGui")
+gui.Name = "RebeldePremium"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local blur = Instance.new("BlurEffect")
+blur.Size = 15
+blur.Parent = Lighting
+
+local function applyStyle(obj, radius, stroke)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius or 8)
+	corner.Parent = obj
+	if stroke then
+		local uiStroke = Instance.new("UIStroke")
+		uiStroke.Color = Color3.new(1,1,1)
+		uiStroke.Transparency = 0.8
+		uiStroke.Parent = obj
+	end
+end
+
+-- ================= LOGIN =================
+local login = Instance.new("Frame")
+login.Size = UDim2.new(0, 350, 0, 250)
+login.Position = UDim2.new(0.5, -175, 0.5, -125)
+login.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+login.Parent = gui
+applyStyle(login, 10, true)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8, 0, 0, 40)
+box.Position = UDim2.new(0.1, 0, 0.4, 0)
+box.PlaceholderText = "Senha"
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+box.Parent = login
+applyStyle(box, 6)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.8, 0, 0, 45)
+verify.Position = UDim2.new(0.1, 0, 0.65, 0)
+verify.Text = "LOGAR"
+verify.BackgroundColor3 = ACCENT_COLOR
+verify.TextColor3 = Color3.new(1,1,1)
+verify.Parent = login
+applyStyle(verify, 6)
+
+-- ================= HUB PRINCIPAL =================
+local hub = Instance.new("Frame")
+hub.Size = UDim2.new(0, 550, 0, 380)
+hub.Position = UDim2.new(0.5, -275, 0.5, -190)
+hub.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+hub.Visible = false
+hub.ClipsDescendants = true
+hub.Parent = gui
+applyStyle(hub, 10, true)
+
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0, 160, 1, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+sidebar.Parent = hub
+
+local sidebarTitle = Instance.new("TextLabel")
+sidebarTitle.Size = UDim2.new(1, 0, 0, 60)
+sidebarTitle.Text = "REBELDE HUB"
+sidebarTitle.TextColor3 = ACCENT_COLOR
+sidebarTitle.Font = Enum.Font.GothamBold
+sidebarTitle.BackgroundTransparency = 1
+sidebarTitle.Parent = sidebar
+
+-- Botão Abrir/Fechar
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0, 50, 0, 50)
+openButton.Position = UDim2.new(0.02, 0, 0.85, 0)
+openButton.Text = "R"
+openButton.BackgroundColor3 = ACCENT_COLOR
+openButton.Visible = false
+openButton.Parent = gui
+applyStyle(openButton, 25, true)
+
+-- ================= FUNÇÕES MODS =================
+
+-- Loop do Hitbox Expander
+RunService.RenderStepped:Connect(function()
+    if _G.HitboxEnabled then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = p.Character.HumanoidRootPart
+                hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                hrp.Transparency = 0.7 -- Fica visível para você saber onde bater
+                hrp.Color = ACCENT_COLOR
+                hrp.CanCollide = false
+            end
+        end
+    end
+    
+    -- Player Mods (Speed e Jump)
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.WalkSpeed = _G.WalkSpeed
+        player.Character.Humanoid.JumpPower = _G.JumpPower
+    end
+end)
+
+-- ================= CRIAÇÃO DE BOTÕES =================
+
+local function createActionBtn(name, posY, callback)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.6, 0, 0, 35)
+	btn.Position = UDim2.new(0.35, 0, 0, posY)
+	btn.Text = name
+	btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamSemibold
+	btn.Parent = hub
+	applyStyle(btn, 6, true)
+	btn.MouseButton1Click:Connect(callback)
+end
+
+-- Funções dos Botões
+createActionBtn("🎯 HITBOX EXPANDER (ON/OFF)", 70, function()
+    _G.HitboxEnabled = not _G.HitboxEnabled
+    print("Hitbox: " .. tostring(_G.HitboxEnabled))
+end)
+
+createActionBtn("⚡ SPEED: 50", 115, function()
+    _G.WalkSpeed = (_G.WalkSpeed == 16) and 50 or 16
+end)
+
+createActionBtn("🚀 SUPER PULO", 160, function()
+    _G.JumpPower = (_G.JumpPower == 50) and 120 or 50
+end)
+
+createActionBtn("🌑 CÉU PRETO", 205, function()
+    for _, v in pairs(Lighting:GetChildren()) do if v:IsA("Sky") then v:Destroy() end end
+    local s = Instance.new("Sky") s.Parent = Lighting
+    Lighting.Ambient = Color3.new(0,0,0)
+end)
+
+createActionBtn("🗑️ REMOVER LAG", 250, function()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic end
+        if v:IsA("Decal") then v:Destroy() end
+    end
+end)
+
+-- ================= LÓGICA FINAL =================
+local function toggle(state)
+    blur.Enabled = state
+    hub.Visible = state
+    openButton.Visible = not state
+end
+
+verify.MouseButton1Click:Connect(function()
+    if box.Text == SENHA_CORRETA then login:Destroy() toggle(true) end
+end)
+
+openButton.MouseButton1Click:Connect(function() toggle(true) end)
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Text = "×"
+closeBtn.BackgroundTransparency = 1
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.TextSize = 25
+closeBtn.Parent = hub
+closeBtn.MouseButton1Click:Connect(function() toggle(false) end)
