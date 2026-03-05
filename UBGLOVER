@@ -1,0 +1,114 @@
+-- [[ 🌌 REBELDE X DRYX - UBG ULTIMATE OPEN SOURCE ]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart")
+
+-- Configurações (Open Source Estilo)
+_G.HitboxStatus = false
+_G.AntiKBStatus = false
+_G.SpeedStatus = false
+_G.JumpStatus = false
+
+_G.HitboxSize = 15
+_G.SpeedValue = 1.5 -- Multiplicador de velocidade
+
+-- ================= LÓGICA DE HITBOX (MÉTODO OPEN) =================
+task.spawn(function()
+    while task.wait(0.1) do
+        if _G.HitboxStatus then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = v.Character.HumanoidRootPart
+                    hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                    hrp.Transparency = 0.7
+                    hrp.Color = Color3.fromRGB(0, 255, 127)
+                    hrp.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+-- ================= LÓGICA ANTI-KNOCKBACK (MÉTODO AGRESSIVO) =================
+-- Este método deleta qualquer tentativa do jogo de mover seu personagem à força
+player.Character.DescendantAdded:Connect(function(v)
+    if _G.AntiKBStatus then
+        if v:IsA("BodyVelocity") or v:IsA("BodyGyro") or v:IsA("LinearVelocity") then
+            task.wait()
+            v:Destroy()
+        end
+    end
+end)
+
+-- ================= LÓGICA SPEED HACK (MÉTODO CFRAME) =================
+-- O jogo não consegue resetar este método pois ele move o seu corpo manualmente
+RunService.RenderStepped:Connect(function()
+    if _G.SpeedStatus and player.Character and player.Character:FindFirstChild("Humanoid") then
+        local hum = player.Character.Humanoid
+        if hum.MoveDirection.Magnitude > 0 then
+            player.Character:TranslateBy(hum.MoveDirection * _G.SpeedValue)
+        end
+    end
+    
+    if _G.JumpStatus and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+        root.Velocity = Vector3.new(root.Velocity.X, 50, root.Velocity.Z)
+    end
+end)
+
+-- ================= INTERFACE SIMPLIFICADA (BOTÕES ON/OFF) =================
+-- (Abaixo adicionei a parte visual para você testar)
+
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 250, 0, 300)
+frame.Position = UDim2.new(0.5, -125, 0.5, -150)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Instance.new("UICorner", frame)
+
+local function createBtn(name, pos, flag)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.Position = UDim2.new(0.05, 0, 0, pos)
+    btn.Text = name .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+    btn.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", btn)
+
+    btn.MouseButton1Click:Connect(function()
+        _G[flag] = not _G[flag]
+        if _G[flag] then
+            btn.Text = name .. ": ON"
+            btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+        else
+            btn.Text = name .. ": OFF"
+            btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+            
+            -- Reset Hitbox
+            if flag == "HitboxStatus" then
+                for _, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        v.Character.HumanoidRootPart.Size = Vector3.new(2,2,1)
+                    end
+                end
+            end
+        end
+    end)
+end
+
+createBtn("Hitbox", 20, "HitboxStatus")
+createBtn("Anti-Knockback", 70, "AntiKBStatus")
+createBtn("CFrame Speed", 120, "SpeedStatus")
+createBtn("Infinite Jump", 170, "JumpStatus")
+
+local label = Instance.new("TextLabel", frame)
+label.Size = UDim2.new(1,0,0,30)
+label.Position = UDim2.new(0,0,1,-30)
+label.Text = "REBELDE X DRYX OPEN SOURCE"
+label.TextColor3 = Color3.new(1,1,1)
+label.BackgroundTransparency = 1
