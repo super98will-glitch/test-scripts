@@ -1,0 +1,255 @@
+-- [[ 🌌 REBELDE X DRYX - SUPREME MULTI-HUB ]]  
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda" -- [cite: 1]
+
+-- Configurações de Estado (Flags)
+_G.Flags = {
+    CFrameSpeed = false,
+    InfiniteJump = false,
+    AntiKB = false,
+    Hitbox = false,
+    FullBright = false
+}
+
+_G.SpeedValue = 1.2
+_G.HitboxSize = 15
+
+-- Interface Base
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = player:WaitForChild("PlayerGui") -- [cite: 1]
+
+local blur = Instance.new("BlurEffect")
+blur.Size = 15
+blur.Enabled = true
+blur.Parent = Lighting -- [cite: 1]
+
+-- Função para Estilo Elegante
+local function style(obj, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 10)
+    corner.Parent = obj
+end
+
+-- ================= LOGIN ELEGANTE =================
+local login = Instance.new("Frame")
+login.Size = UDim2.new(0, 420, 0, 240)
+login.Position = UDim2.new(0.5, -210, 0.5, -120)
+login.BackgroundColor3 = Color3.fromRGB(18, 18, 25) -- [cite: 1]
+login.Parent = gui
+style(login)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8, 0, 0, 45)
+box.Position = UDim2.new(0.1, 0, 0.4, 0)
+box.PlaceholderText = "Digite a senha..." -- [cite: 1]
+box.TextColor3 = Color3.new(1, 1, 1)
+box.BackgroundColor3 = Color3.fromRGB(30, 30, 40) -- [cite: 2]
+box.Parent = login
+style(box, 8)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.8, 0, 0, 45)
+verify.Position = UDim2.new(0.1, 0, 0.68, 0)
+verify.Text = "VERIFICAR" -- [cite: 2]
+verify.BackgroundColor3 = Color3.fromRGB(60, 120, 255) -- [cite: 2]
+verify.TextColor3 = Color3.new(1, 1, 1)
+verify.Font = Enum.Font.GothamBold
+verify.Parent = login
+style(verify, 8)
+
+-- ================= HUB ELEGANTE =================
+local hub = Instance.new("Frame")
+hub.Size = UDim2.new(0, 550, 0, 400)
+hub.Position = UDim2.new(0.5, -275, 0.5, -200)
+hub.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+hub.Visible = false
+hub.ClipsDescendants = true
+hub.Parent = gui
+style(hub)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Text = "REBELDE X DRYX - SUPREME HUB"
+title.TextColor3 = Color3.fromRGB(60, 120, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.BackgroundTransparency = 1
+title.Parent = hub
+
+-- Scrolling Frame para múltiplas funções
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(0.9, 0, 0.75, 0)
+scroll.Position = UDim2.new(0.05, 0, 0.18, 0)
+scroll.BackgroundTransparency = 1
+scroll.CanvasSize = UDim2.new(0, 0, 1.5, 0)
+scroll.ScrollBarThickness = 4
+scroll.Parent = hub
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 10)
+layout.HorizontalAlignment = "Center"
+layout.Parent = scroll
+
+-- ================= FUNÇÕES (BOTÕES ON/OFF) =================
+
+local function createToggle(name, flag)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.95, 0, 0, 45)
+    btn.Text = name .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Parent = scroll
+    style(btn, 8)
+
+    btn.MouseButton1Click:Connect(function()
+        _G.Flags[flag] = not _G.Flags[flag]
+        btn.Text = _G.Flags[flag] and name .. ": ON" or name .. ": OFF"
+        btn.BackgroundColor3 = _G.Flags[flag] and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(35, 35, 45)
+    end)
+end
+
+createToggle("CFRAME SPEED", "CFrameSpeed")
+createToggle("INFINITE JUMP", "InfiniteJump")
+createToggle("ANTI-KNOCKBACK (FIXED)", "AntiKB")
+createToggle("HITBOX EXPANDER", "Hitbox")
+createToggle("FULLBRIGHT (VISUAL)", "FullBright")
+
+-- Botão Especial para Infinite Yield (Admin Open Source)
+local iyBtn = Instance.new("TextButton")
+iyBtn.Size = UDim2.new(0.95, 0, 0, 45)
+iyBtn.Text = "EXECUTAR INFINITE YIELD"
+iyBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 150)
+iyBtn.TextColor3 = Color3.new(1, 1, 1)
+iyBtn.Parent = scroll
+style(iyBtn, 8)
+iyBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+end)
+
+-- ================= LÓGICA DE FUNCIONAMENTO =================
+
+RunService.RenderStepped:Connect(function()
+    local char = player.Character
+    if not char then return end
+
+    -- Lógica CFrame Speed
+    if _G.Flags.CFrameSpeed and char:FindFirstChild("Humanoid") then
+        local hum = char.Humanoid
+        if hum.MoveDirection.Magnitude > 0 then
+            char:TranslateBy(hum.MoveDirection * _G.SpeedValue)
+        end
+    end
+
+    -- Lógica Infinite Jump
+    if _G.Flags.InfiniteJump and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.Velocity = Vector3.new(root.Velocity.X, 50, root.Velocity.Z)
+        end
+    end
+
+    -- FullBright
+    if _G.Flags.FullBright then
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.ClockTime = 12
+    end
+end)
+
+-- Anti-Knockback e Hitbox
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.Flags.Hitbox then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    v.Character.HumanoidRootPart.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                    v.Character.HumanoidRootPart.Transparency = 0.7
+                    v.Character.HumanoidRootPart.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+-- ================= ANIMAÇÕES E LOGIN =================
+
+verify.MouseButton1Click:Connect(function()
+    if box.Text == SENHA_CORRETA then -- [cite: 1]
+        login:TweenPosition(UDim2.new(0.5, -210, -0.5, 0), "In", "Back", 0.5)
+        task.wait(0.5)
+        login.Visible = false
+        hub.Visible = true
+        hub.Size = UDim2.new(0, 0, 0, 0)
+        hub:TweenSize(UDim2.new(0, 550, 0, 400), "Out", "Quad", 0.4)
+    else
+        verify.Text = "SENHA ERRADA" -- [cite: 3]
+        task.wait(1)
+        verify.Text = "VERIFICAR"
+    end
+end)
+
+-- ================= MINIMIZAR CORRIGIDO =================
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 35, 0, 35)
+close.Position = UDim2.new(1, -40, 0, 5)
+close.TextColor3 = Color3.new(1, 1, 1)
+close.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+close.Parent = hub
+style(close,5)
+
+-- Botão flutuante para reabrir
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0,150,0,40)
+openBtn.Position = UDim2.new(0.02,0,0.85,0)
+openBtn.Text = "ABRIR HUB"
+openBtn.BackgroundColor3 = Color3.fromRGB(60,120,255)
+openBtn.TextColor3 = Color3.new(1,1,1)
+openBtn.Visible = false
+openBtn.Parent = gui
+style(openBtn,8)
+
+local minimized = false
+local originalSize = hub.Size
+local originalPosition = hub.Position
+
+close.Text = "-"
+
+close.MouseButton1Click:Connect(function()
+	if not minimized then
+		minimized = true
+		
+		blur.Enabled = false
+		
+		hub:TweenSize(UDim2.new(0, 200, 0, 50), "Out", "Quad", 0.3, true)
+		hub:TweenPosition(UDim2.new(0.02,0,0.85,0), "Out", "Quad", 0.3, true)
+		
+		task.wait(0.3)
+		hub.Visible = false
+		openBtn.Visible = true
+	end
+end)
+
+openBtn.MouseButton1Click:Connect(function()
+	minimized = false
+	
+	blur.Enabled = true
+	
+	hub.Visible = true
+	hub.Size = UDim2.new(0, 200, 0, 50)
+	hub.Position = UDim2.new(0.02,0,0.85,0)
+	
+	hub:TweenSize(originalSize,"Out","Quad",0.3,true)
+	hub:TweenPosition(originalPosition,"Out","Quad",0.3,true)
+	
+	openBtn.Visible = false
+end)
