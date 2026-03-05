@@ -1,0 +1,141 @@
+-- [[ 🌌 REBELDE X DRYX - SUPREME EXPLOIT HUB ]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda" [cite: 1]
+
+-- Configurações de Exploits
+_G.Flags = {
+    Hitbox = false,
+    AntiKB = false,
+    CFrameSpeed = false,
+    InfiniteJump = false
+}
+
+-- ================= SISTEMA DE BYPASS (METATABLE) =================
+-- Isso impede que o jogo detecte certas mudanças no seu personagem
+local mt = getrawmetatable(game)
+local old = mt.__index
+setreadonly(mt, false)
+
+mt.__index = newcclosure(function(t, k)
+    if _G.Flags.AntiKB and t:IsA("Humanoid") and (k == "WalkSpeed" or k == "JumpPower") then
+        return old(t, k)
+    end
+    return old(t, k)
+end)
+setreadonly(mt, true)
+
+-- ================= INTERFACE (BASEADA NO SEU CÓDIGO) =================
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.ResetOnSpawn = false [cite: 1]
+
+-- Painel Principal Elegante
+local hub = Instance.new("Frame", gui)
+hub.Size = UDim2.new(0, 500, 0, 400)
+hub.Position = UDim2.new(0.5, -250, 0.5, -200)
+hub.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+hub.Visible = false
+Instance.new("UICorner", hub).CornerRadius = UDim.new(0, 12)
+
+-- Scrolling para múltiplas funções open source
+local scroll = Instance.new("ScrollingFrame", hub)
+scroll.Size = UDim2.new(0.9, 0, 0.8, 0)
+scroll.Position = UDim2.new(0.05, 0, 0.15, 0)
+scroll.BackgroundTransparency = 1
+scroll.CanvasSize = UDim2.new(0, 0, 2, 0)
+scroll.ScrollBarThickness = 3
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 8)
+layout.HorizontalAlignment = "Center"
+
+-- ================= FUNÇÕES DE EXPLOIT (OPEN SOURCE) =================
+
+-- 1. Anti-Knockback (Deleta forças de impacto do UBG)
+task.spawn(function()
+    RunService.Stepped:Connect(function()
+        if _G.Flags.AntiKB and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            for _, v in pairs(player.Character.HumanoidRootPart:GetChildren()) do
+                if v:IsA("BodyVelocity") or v:IsA("LinearVelocity") or v:IsA("BodyGyro") then
+                    v:Destroy()
+                end
+            end
+        end
+    end)
+end)
+
+-- 2. Hitbox Expander (Aumenta a área de dano dos inimigos)
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.Flags.Hitbox then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = v.Character.HumanoidRootPart
+                    hrp.Size = Vector3.new(15, 15, 15)
+                    hrp.Transparency = 0.6
+                    hrp.Color = Color3.fromRGB(255, 0, 0)
+                    hrp.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+-- 3. CFrame Speed & Infinite Jump (Movimentação Bypass)
+RunService.RenderStepped:Connect(function()
+    local char = player.Character
+    if char and char:FindFirstChild("Humanoid") then
+        if _G.Flags.CFrameSpeed and char.Humanoid.MoveDirection.Magnitude > 0 then
+            char:TranslateBy(char.Humanoid.MoveDirection * 1.3)
+        end
+        if _G.Flags.InfiniteJump and UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            char.HumanoidRootPart.Velocity = Vector3.new(char.HumanoidRootPart.Velocity.X, 50, char.HumanoidRootPart.Velocity.Z)
+        end
+    end
+end)
+
+-- ================= CRIAÇÃO DOS BOTÕES =================
+
+local function addExploit(name, flag)
+    local btn = Instance.new("TextButton", scroll)
+    btn.Size = UDim2.new(0.95, 0, 0, 45)
+    btn.Text = name .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", btn)
+
+    btn.MouseButton1Click:Connect(function()
+        _G.Flags[flag] = not _G.Flags[flag]
+        btn.Text = _G.Flags[flag] and name .. ": ON" or name .. ": OFF"
+        btn.BackgroundColor3 = _G.Flags[flag] and Color3.fromRGB(60, 120, 255) or Color3.fromRGB(30, 30, 40)
+    end)
+end
+
+addExploit("HITBOX EXPANDER", "Hitbox")
+addExploit("ANTI-KNOCKBACK", "AntiKB")
+addExploit("CFRAME SPEED", "CFrameSpeed")
+addExploit("INFINITE JUMP", "InfiniteJump")
+
+-- Adicionando scripts externos famosos
+local function addExternal(name, loadstr)
+    local btn = Instance.new("TextButton", scroll)
+    btn.Size = UDim2.new(0.95, 0, 0, 45)
+    btn.Text = "CARREGAR " .. name
+    btn.BackgroundColor3 = Color3.fromRGB(80, 40, 150)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", btn)
+    btn.MouseButton1Click:Connect(function() loadstring(game:HttpGet(loadstr))() end)
+end
+
+addExternal("INFINITE YIELD", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+addExternal("DEX EXPLORER", "https://raw.githubusercontent.com/infYiff/reVamp/main/dex.lua")
+
+-- ================= LÓGICA DE LOGIN (DO SEU ARQUIVO) =================
+-- [Insira aqui o código de verificação de senha e animação de abertura que você já possui] [cite: 2, 3]
