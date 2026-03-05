@@ -1,0 +1,200 @@
+-- [[ 🌌 REBELDE X DRYX HUB - PREMIMUM DESIGN EDITION ]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda"
+local ACCENT_COLOR = Color3.fromRGB(0, 170, 255) -- Azul Neon
+
+-- Gerenciamento de UI
+local gui = Instance.new("ScreenGui")
+gui.Name = "PremiumHub"
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Blur de Fundo
+local blur = Instance.new("BlurEffect")
+blur.Size = 0
+blur.Parent = Lighting
+TweenService:Create(blur, TweenInfo.new(1), {Size = 15}):Play()
+
+-- Função Auxiliar: Criar Estilo Moderno
+local function applyStyle(obj, radius, stroke)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = Radius or UdDim.new(0, 8)
+	corner.Parent = obj
+	
+	if stroke then
+		local uiStroke = Instance.new("UIStroke")
+		uiStroke.Color = Color3.fromRGB(255,255,255)
+		uiStroke.Transparency = 0.8
+		uiStroke.Thickness = 1
+		uiStroke.Parent = obj
+	end
+end
+
+-- ================= LOGIN PREMIUM =================
+local login = Instance.new("Frame")
+login.Size = UDim2.new(0, 350, 0, 250)
+login.Position = UDim2.new(0.5, -175, 0.5, -125)
+login.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+login.BorderSizePixel = 0
+login.Parent = gui
+applyStyle(login, 10, true)
+
+local loginGradient = Instance.new("UIGradient")
+loginGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 30)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 15))
+})
+loginGradient.Rotation = 45
+loginGradient.Parent = login
+
+local loginTitle = Instance.new("TextLabel")
+loginTitle.Size = UDim2.new(1, 0, 0, 50)
+loginTitle.BackgroundTransparency = 1
+loginTitle.Text = "REBELDE X DRYX"
+loginTitle.Font = Enum.Font.GothamBold
+loginTitle.TextColor3 = ACCENT_COLOR
+loginTitle.TextSize = 22
+loginTitle.Parent = login
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8, 0, 0, 40)
+box.Position = UDim2.new(0.1, 0, 0.4, 0)
+box.PlaceholderText = "Senha de Acesso"
+box.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+box.TextColor3 = Color3.new(1,1,1)
+box.Font = Enum.Font.Gotham
+box.Parent = login
+applyStyle(box, 6)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.8, 0, 0, 45)
+verify.Position = UDim2.new(0.1, 0, 0.65, 0)
+verify.Text = "LOGAR"
+verify.Font = Enum.Font.GothamBold
+verify.TextColor3 = Color3.new(1,1,1)
+verify.BackgroundColor3 = ACCENT_COLOR
+verify.Parent = login
+applyStyle(verify, 6)
+
+-- ================= HUB GOD TIER =================
+local hub = Instance.new("Frame")
+hub.Size = UDim2.new(0, 550, 0, 350)
+hub.Position = UDim2.new(0.5, -275, 0.5, -175)
+hub.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+hub.Visible = false
+hub.ClipsDescendants = true
+hub.Parent = gui
+applyStyle(hub, 10, true)
+
+-- Sidebar (Barra Lateral)
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0, 150, 1, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+sidebar.Parent = hub
+applyStyle(sidebar, 0)
+
+local sidebarTitle = Instance.new("TextLabel")
+sidebarTitle.Size = UDim2.new(1, 0, 0, 60)
+sidebarTitle.Text = "HUB MENU"
+sidebarTitle.TextColor3 = ACCENT_COLOR
+sidebarTitle.Font = Enum.Font.GothamBold
+sidebarTitle.TextSize = 18
+sidebarTitle.BackgroundTransparency = 1
+sidebarTitle.Parent = sidebar
+
+-- Botão de Minimizar (X)
+local minBtn = Instance.new("TextButton")
+minBtn.Size = UDim2.new(0, 30, 0, 30)
+minBtn.Position = UDim2.new(1, -35, 0, 5)
+minBtn.Text = "×"
+minBtn.TextColor3 = Color3.new(1,1,1)
+minBtn.TextSize = 24
+minBtn.BackgroundTransparency = 1
+minBtn.Parent = hub
+
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0, 50, 0, 50)
+openButton.Position = UDim2.new(0.02, 0, 0.85, 0)
+openButton.Text = "R" -- Ícone minimalista
+openButton.BackgroundColor3 = ACCENT_COLOR
+openButton.TextColor3 = Color3.new(1,1,1)
+openButton.Font = Enum.Font.GothamBold
+openButton.Visible = false
+openButton.Parent = gui
+applyStyle(openButton, 25, true) -- Redondo
+
+-- ================= FUNÇÕES DE LOGICA =================
+
+local function toggleHub(state)
+	if state then
+		blur.Enabled = true
+		hub.Visible = true
+		openButton.Visible = false
+		hub:TweenSize(UDim2.new(0, 550, 0, 350), "Out", "Quad", 0.3, true)
+	else
+		blur.Enabled = false
+		hub:TweenSize(UDim2.new(0, 0, 0, 0), "In", "Quad", 0.3, true, function()
+			hub.Visible = false
+			openButton.Visible = true
+		end)
+	end
+end
+
+-- Efeito Hover nos Botões
+local function addHover(btn)
+	local originalCol = btn.BackgroundColor3
+	btn.MouseEnter:Connect(function()
+		TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = originalCol:Lerp(Color3.new(1,1,1), 0.2)}):Play()
+	end)
+	btn.MouseLeave:Connect(function()
+		TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = originalCol}):Play()
+	end)
+end
+
+-- Botões do HUB
+local function createActionBtn(name, posY, callback)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.8, 0, 0, 40)
+	btn.Position = UDim2.new(0.1, 0, 0, posY)
+	btn.Text = name
+	btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamSemibold
+	btn.Parent = hub
+	btn.Position = UDim2.new(0.32, 0, 0, posY) -- Ajustado para o lado da sidebar
+	applyStyle(btn, 6, true)
+	addHover(btn)
+	btn.MouseButton1Click:Connect(callback)
+end
+
+-- Verificação de Login
+verify.MouseButton1Click:Connect(function()
+	if box.Text == SENHA_CORRETA then
+		login:Destroy()
+		toggleHub(true)
+	else
+		verify.Text = "SENHA INVÁLIDA"
+		verify.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		task.wait(1)
+		verify.Text = "LOGAR"
+		verify.BackgroundColor3 = ACCENT_COLOR
+	end
+end)
+
+minBtn.MouseButton1Click:Connect(function() toggleHub(false) end)
+openButton.MouseButton1Click:Connect(function() toggleHub(true) end)
+
+-- Exemplos de Botões (Otimização)
+createActionBtn("🚀 ULTRA POTATO", 70, function() print("Ativado") end)
+createActionBtn("🔫 COMPETITIVE MODE", 120, function() print("Ativado") end)
+createActionBtn("🌑 BLACK SKY", 170, function() print("Ativado") end)
+
+addHover(verify)
+addHover(openButton)
