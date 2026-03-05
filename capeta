@@ -1,0 +1,115 @@
+-- [[ 🌌 REBELDE X DRYX - MEGA MULTI-HUB OPEN SOURCE ]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- ================= CONFIGURAÇÕES GLOBAIS =================
+_G.SENHA_CORRETA = "diegolenda"
+_G.Flags = {
+    -- UBG & Combat
+    Hitbox = false, AntiKB = false, 
+    -- Universal
+    CFrameSpeed = false, InfiniteJump = false,
+    FullBright = false, ESP = false
+}
+
+-- ================= INTERFACE (BASE DO SEU ARQUIVO) =================
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.ResetOnSpawn = false
+
+-- (Omitindo parte do Login para focar nas novas funções, use o do seu arquivo)
+
+local hub = Instance.new("Frame", gui)
+hub.Size = UDim2.new(0, 600, 0, 480)
+hub.Position = UDim2.new(0.5, -300, 0.5, -240)
+hub.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+hub.Visible = false
+Instance.new("UICorner", hub)
+
+-- Container para botões com Scroll (para caber muitas funções)
+local scroll = Instance.new("ScrollingFrame", hub)
+scroll.Size = UDim2.new(0.95, 0, 0.85, 0)
+scroll.Position = UDim2.new(0.025, 0, 0.12, 0)
+scroll.BackgroundTransparency = 1
+scroll.CanvasSize = UDim2.new(0, 0, 2, 0) -- Espaço para muitas funções
+scroll.ScrollBarThickness = 4
+
+local layout = Instance.new("UIListLayout", scroll)
+layout.Padding = UDim.new(0, 10)
+layout.HorizontalAlignment = "Center"
+
+-- ================= FUNÇÕES OPEN SOURCE INTEGRADAS =================
+
+local function createToggle(name, flag)
+    local btn = Instance.new("TextButton", scroll)
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.Text = name .. ": OFF"
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", btn)
+
+    btn.MouseButton1Click:Connect(function()
+        _G.Flags[flag] = not _G.Flags[flag]
+        btn.Text = _G.Flags[flag] and name .. ": ON" or name .. ": OFF"
+        btn.BackgroundColor3 = _G.Flags[flag] and Color3.fromRGB(60, 120, 255) or Color3.fromRGB(40, 40, 50)
+    end)
+end
+
+-- 1. ADICIONANDO FUNÇÕES DE COMBATE (UBG & OUTROS)
+createToggle("HITBOX EXPANDER (COMBAT)", "Hitbox")
+createToggle("ANTI-KNOCKBACK (UNIVERSAL)", "AntiKB")
+
+-- 2. ADICIONANDO PLAYER MODS (OPEN SOURCE CFRAME)
+createToggle("CFRAME SPEED (BYPASS)", "CFrameSpeed")
+createToggle("INFINITE JUMP", "InfiniteJump")
+
+-- 3. ADICIONANDO VISUAIS (OPEN SOURCE)
+createToggle("FULLBRIGHT (RETIRAR ESCURIDÃO)", "FullBright")
+
+-- 4. BOTÃO PARA EXECUTAR SCRIPTS EXTERNOS FAMOSOS
+local iyBtn = Instance.new("TextButton", scroll)
+iyBtn.Size = UDim2.new(0.9, 0, 0, 40)
+iyBtn.Text = "EXECUTAR INFINITE YIELD (ADMIN)"
+iyBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 150)
+iyBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", iyBtn)
+iyBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+end)
+
+-- ================= LÓGICA DE FUNCIONAMENTO AGRESSIVO =================
+
+RunService.RenderStepped:Connect(function()
+    local char = player.Character
+    if not char then return end
+    
+    -- Lógica CFrame Speed (Bypass)
+    if _G.Flags.CFrameSpeed and char:FindFirstChild("Humanoid") then
+        if char.Humanoid.MoveDirection.Magnitude > 0 then
+            char:TranslateBy(char.Humanoid.MoveDirection * 1.2)
+        end
+    end
+
+    -- FullBright
+    if _G.Flags.FullBright then
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 12
+    end
+end)
+
+-- Anti-Knockback Agressivo
+player.CharacterAdded:Connect(function(char)
+    char.DescendantAdded:Connect(function(v)
+        if _G.Flags.AntiKB and (v:IsA("BodyVelocity") or v:IsA("LinearVelocity")) then
+            task.wait()
+            v:Destroy()
+        end
+    end)
+end)
+
+print("Rebelde x Dryx Hub Carregado com Sucesso!")
