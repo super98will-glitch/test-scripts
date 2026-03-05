@@ -1,0 +1,251 @@
+-- 🌌 REBELDE X DRYX HUB GOD TIER
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda"
+
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Blur
+local blur = Instance.new("BlurEffect")
+blur.Size = 15
+blur.Parent = Lighting
+
+-- ================= LOGIN =================
+
+local login = Instance.new("Frame")
+login.Size = UDim2.new(0,420,0,240)
+login.Position = UDim2.new(0.5,-210,0.5,-120)
+login.BackgroundColor3 = Color3.fromRGB(18,18,25)
+login.Parent = gui
+Instance.new("UICorner",login)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,60)
+title.BackgroundTransparency = 1
+title.Text = "REBELDE X DRYX"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
+title.TextColor3 = Color3.new(1,1,1)
+title.Parent = login
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8,0,0,45)
+box.Position = UDim2.new(0.1,0,0.4,0)
+box.PlaceholderText = "Digite a senha..."
+box.Font = Enum.Font.Gotham
+box.TextSize = 16
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(30,30,40)
+box.Parent = login
+Instance.new("UICorner",box)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.8,0,0,45)
+verify.Position = UDim2.new(0.1,0,0.68,0)
+verify.Text = "VERIFICAR"
+verify.Font = Enum.Font.GothamBold
+verify.TextSize = 16
+verify.TextColor3 = Color3.new(1,1,1)
+verify.BackgroundColor3 = Color3.fromRGB(60,120,255)
+verify.Parent = login
+Instance.new("UICorner",verify)
+
+-- ================= HUB =================
+
+local hub = Instance.new("Frame")
+hub.Size = UDim2.new(0,600,0,400)
+hub.Position = UDim2.new(0.5,-300,0.5,-200)
+hub.BackgroundColor3 = Color3.fromRGB(18,18,25)
+hub.Visible = false
+hub.Parent = gui
+Instance.new("UICorner",hub)
+
+local hubTitle = Instance.new("TextLabel")
+hubTitle.Size = UDim2.new(1,0,0,50)
+hubTitle.BackgroundTransparency = 1
+hubTitle.Text = "Performance Settings"
+hubTitle.Font = Enum.Font.GothamBold
+hubTitle.TextSize = 22
+hubTitle.TextColor3 = Color3.new(1,1,1)
+hubTitle.Parent = hub
+
+-- ================= MINIMIZAR =================
+
+local minimized = false
+local originalSize = hub.Size
+local originalPosition = hub.Position
+
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Size = UDim2.new(0,40,0,40)
+minimizeBtn.Position = UDim2.new(1,-45,0,5)
+minimizeBtn.Text = "-"
+minimizeBtn.Font = Enum.Font.GothamBold
+minimizeBtn.TextSize = 22
+minimizeBtn.TextColor3 = Color3.new(1,1,1)
+minimizeBtn.BackgroundColor3 = Color3.fromRGB(255,70,70)
+minimizeBtn.Parent = hub
+Instance.new("UICorner", minimizeBtn)
+
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0,160,0,45)
+openButton.Position = UDim2.new(0.02,0,0.8,0)
+openButton.Text = "ABRIR HUB"
+openButton.Font = Enum.Font.GothamBold
+openButton.TextSize = 16
+openButton.TextColor3 = Color3.new(1,1,1)
+openButton.BackgroundColor3 = Color3.fromRGB(60,120,255)
+openButton.Visible = false
+openButton.Parent = gui
+Instance.new("UICorner", openButton)
+
+local tweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+minimizeBtn.MouseButton1Click:Connect(function()
+	if not minimized then
+		minimized = true
+		local tween = TweenService:Create(hub, tweenInfo, {
+			Size = UDim2.new(0,200,0,50),
+			Position = UDim2.new(0.02,0,0.8,0)
+		})
+		tween:Play()
+		task.wait(0.3)
+		hub.Visible = false
+		openButton.Visible = true
+	end
+end)
+
+openButton.MouseButton1Click:Connect(function()
+	minimized = false
+	hub.Visible = true
+	hub.Size = UDim2.new(0,200,0,50)
+	hub.Position = UDim2.new(0.02,0,0.8,0)
+
+	local tween = TweenService:Create(hub, tweenInfo, {
+		Size = originalSize,
+		Position = originalPosition
+	})
+	tween:Play()
+
+	openButton.Visible = false
+end)
+
+-- ================= FUNÇÕES DE OTIMIZAÇÃO =================
+
+local function UltraPotato()
+	pcall(function()
+		settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+	end)
+	Lighting.GlobalShadows = false
+	for _, obj in pairs(workspace:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			obj.Material = Enum.Material.SmoothPlastic
+			obj.CastShadow = false
+		end
+	end
+end
+
+local function CompetitiveMode()
+	UltraPotato()
+	for _, obj in pairs(workspace:GetDescendants()) do
+		if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then
+			obj.Enabled = false
+		end
+		if obj:IsA("Decal") or obj:IsA("Texture") then
+			obj:Destroy()
+		end
+	end
+end
+
+-- ================= BOTÕES =================
+
+local function createButton(text,posY,color,callback)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.6,0,0,45)
+	btn.Position = UDim2.new(0.2,0,posY,0)
+	btn.Text = text
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 16
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.BackgroundColor3 = color
+	btn.Parent = hub
+	Instance.new("UICorner",btn)
+	btn.MouseButton1Click:Connect(function()
+		callback()
+		btn.Text = "ATIVADO ✓"
+	end)
+end
+
+createButton("ULTRA POTATO",0.25,Color3.fromRGB(40,170,90),UltraPotato)
+createButton("MODO COMPETITIVO",0.4,Color3.fromRGB(255,50,120),CompetitiveMode)
+
+-- ================= SKY PRETO =================
+
+local function BlackSky()
+	for _, v in pairs(Lighting:GetChildren()) do
+		if v:IsA("Sky") then v:Destroy() end
+	end
+	local sky = Instance.new("Sky")
+	sky.Parent = Lighting
+	Lighting.Ambient = Color3.new(0,0,0)
+	Lighting.OutdoorAmbient = Color3.new(0,0,0)
+end
+
+-- ================= CROSSHAIR =================
+
+local function CreateCrosshair()
+	local cross = Instance.new("Frame")
+	cross.Size = UDim2.new(0,4,0,4)
+	cross.Position = UDim2.new(0.5,-2,0.5,-2)
+	cross.BackgroundColor3 = Color3.fromRGB(255,0,0)
+	cross.BorderSizePixel = 0
+	cross.Parent = gui
+end
+
+-- ================= FPS COUNTER =================
+
+local function CreateFPSCounter()
+	local fpsLabel = Instance.new("TextLabel")
+	fpsLabel.Size = UDim2.new(0,120,0,40)
+	fpsLabel.Position = UDim2.new(0,10,0,10)
+	fpsLabel.BackgroundTransparency = 1
+	fpsLabel.TextColor3 = Color3.fromRGB(0,255,0)
+	fpsLabel.Font = Enum.Font.GothamBold
+	fpsLabel.TextSize = 18
+	fpsLabel.Parent = gui
+
+	local last = tick()
+	local frames = 0
+
+	RunService.RenderStepped:Connect(function()
+		frames += 1
+		if tick() - last >= 1 then
+			fpsLabel.Text = "FPS: "..frames
+			frames = 0
+			last = tick()
+		end
+	end)
+end
+
+-- ================= LOGIN =================
+
+verify.MouseButton1Click:Connect(function()
+	if box.Text == SENHA_CORRETA then
+		login.Visible = false
+		hub.Visible = true
+		BlackSky()
+		CreateCrosshair()
+		CreateFPSCounter()
+	else
+		verify.Text = "SENHA ERRADA"
+		task.wait(1)
+		verify.Text = "VERIFICAR"
+	end
+end)
