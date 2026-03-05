@@ -1,0 +1,203 @@
+-- [[ 🌌 REBELDE X DRYX - SUPREME UBG V4 (DEFINITIVO) ]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda"
+
+-- Configurações e Toggles
+local Flags = {
+    Hitbox = false,
+    AntiKnockback = false,
+    Speed = false,
+    Jump = false
+}
+
+-- Limpeza de rastros
+for _, v in pairs(Lighting:GetChildren()) do if v:IsA("BlurEffect") then v:Destroy() end end
+if player.PlayerGui:FindFirstChild("SupremeUBG") then player.PlayerGui.SupremeUBG:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SupremeUBG"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local blur = Instance.new("BlurEffect")
+blur.Size = 20
+blur.Parent = Lighting
+
+local function style(obj)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 10)
+    c.Parent = obj
+end
+
+-- ================= LOGIN =================
+local login = Instance.new("Frame")
+login.Size = UDim2.new(0, 350, 0, 250)
+login.Position = UDim2.new(0.5, -175, 0.5, -125)
+login.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+login.Parent = gui
+style(login)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8, 0, 0, 45)
+box.Position = UDim2.new(0.1, 0, 0.35, 0)
+box.PlaceholderText = "SENHA"
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(30,30,40)
+box.Parent = login
+style(box)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.8, 0, 0, 45)
+verify.Position = UDim2.new(0.1, 0, 0.65, 0)
+verify.Text = "ENTRAR"
+verify.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+verify.TextColor3 = Color3.new(1,1,1)
+verify.Font = Enum.Font.GothamBold
+verify.Parent = login
+style(verify)
+
+-- ================= HUB PRINCIPAL =================
+local hub = Instance.new("Frame")
+hub.Size = UDim2.new(0, 520, 0, 380)
+hub.Position = UDim2.new(0.5, -260, 0.5, -190)
+hub.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+hub.Visible = false
+hub.Parent = gui
+style(hub)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 60)
+title.Text = "REBELDE X DRYX - SUPREME UBG"
+title.TextColor3 = Color3.fromRGB(0, 150, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.BackgroundTransparency = 1
+title.Parent = hub
+
+-- ================= SISTEMA DE BOTÕES (ON / OFF) =================
+local function createOption(name, posY, flag)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.4, 0, 0, 40)
+    label.Position = UDim2.new(0.05, 0, 0, posY)
+    label.Text = name
+    label.TextColor3 = Color3.new(1,1,1)
+    label.Font = Enum.Font.GothamSemibold
+    label.BackgroundTransparency = 1
+    label.TextXAlignment = "Left"
+    label.Parent = hub
+
+    local on = Instance.new("TextButton")
+    on.Size = UDim2.new(0, 90, 0, 35)
+    on.Position = UDim2.new(0.5, 0, 0, posY + 2)
+    on.Text = "ON"
+    on.BackgroundColor3 = Color3.fromRGB(40, 45, 50)
+    on.TextColor3 = Color3.new(1,1,1)
+    on.Parent = hub
+    style(on)
+
+    local off = Instance.new("TextButton")
+    off.Size = UDim2.new(0, 90, 0, 35)
+    off.Position = UDim2.new(0.72, 0, 0, posY + 2)
+    off.Text = "OFF"
+    off.BackgroundColor3 = Color3.fromRGB(150, 50, 50) -- Vermelho por padrão
+    off.TextColor3 = Color3.new(1,1,1)
+    off.Parent = hub
+    style(off)
+
+    on.MouseButton1Click:Connect(function()
+        Flags[flag] = true
+        on.BackgroundColor3 = Color3.fromRGB(50, 180, 50) -- Verde
+        off.BackgroundColor3 = Color3.fromRGB(40, 45, 50) -- Cinza
+    end)
+
+    off.MouseButton1Click:Connect(function()
+        Flags[flag] = false
+        off.BackgroundColor3 = Color3.fromRGB(150, 50, 50) -- Vermelho
+        on.BackgroundColor3 = Color3.fromRGB(40, 45, 50) -- Cinza
+        
+        -- Reset específico se for Hitbox
+        if flag == "Hitbox" then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                    v.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                    v.Character.HumanoidRootPart.Transparency = 1
+                end
+            end
+        end
+    end)
+end
+
+createOption("HITBOX EXPANDER", 80, "Hitbox")
+createOption("ANTI-KNOCKBACK", 140, "AntiKnockback")
+createOption("SPEED HACK (45)", 200, "Speed")
+createOption("SUPER JUMP", 260, "Jump")
+
+-- ================= LÓGICA AGRESSIVA (LOOP) =================
+RunService.Stepped:Connect(function()
+    -- Hitbox
+    if Flags.Hitbox then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = p.Character.HumanoidRootPart
+                hrp.Size = Vector3.new(15, 15, 15)
+                hrp.Transparency = 0.7
+                hrp.Color = Color3.fromRGB(255, 0, 0)
+                hrp.CanCollide = false
+            end
+        end
+    end
+
+    -- Anti-Knockback e Player Mods
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        local root = player.Character:FindFirstChild("HumanoidRootPart")
+        
+        if Flags.AntiKnockback and root then
+            for _, v in pairs(root:GetChildren()) do
+                if v:IsA("BodyVelocity") or v:IsA("BodyPosition") or v:IsA("BodyGyro") or v:IsA("LinearVelocity") or v:IsA("VectorForce") then
+                    v:Destroy()
+                end
+            end
+        end
+
+        if Flags.Speed then player.Character.Humanoid.WalkSpeed = 45 end
+        if Flags.Jump then player.Character.Humanoid.JumpPower = 110 end
+    end
+end)
+
+-- ================= BOTÃO DE ABRIR E LOGIN =================
+local open = Instance.new("TextButton")
+open.Size = UDim2.new(0, 50, 0, 50)
+open.Position = UDim2.new(0.02, 0, 0.85, 0)
+open.Text = "R"
+open.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+open.Visible = false
+open.Parent = gui
+style(open)
+
+local function toggle(state)
+    blur.Enabled = state
+    hub.Visible = state
+    open.Visible = not state
+end
+
+verify.MouseButton1Click:Connect(function()
+    if box.Text == SENHA_CORRETA then login:Destroy() toggle(true) end
+end)
+
+open.MouseButton1Click:Connect(function() toggle(true) end)
+
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -40, 0, 10)
+close.Text = "X"
+close.BackgroundTransparency = 1
+close.TextColor3 = Color3.new(1,1,1)
+close.TextSize = 20
+close.Parent = hub
+close.MouseButton1Click:Connect(function() toggle(false) end)
