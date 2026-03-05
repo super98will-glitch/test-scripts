@@ -1,0 +1,195 @@
+-- [[ 🌌 REBELDE X DRYX HUB - ULTIMATE BATTLEGROUNDS SPECIAL ]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local SENHA_CORRETA = "diegolenda"
+local ACCENT_COLOR = Color3.fromRGB(0, 170, 255)
+
+-- Flags de Ativação
+local Flags = {
+	Hitbox = false,
+	AntiKnockback = false,
+	Speed = false,
+	Jump = false
+}
+
+-- Limpar Blurs
+for _, v in pairs(Lighting:GetChildren()) do if v:IsA("BlurEffect") then v:Destroy() end end
+local gui = Instance.new("ScreenGui")
+gui.Name = "SupremeHubUBG"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local blur = Instance.new("BlurEffect")
+blur.Size = 15
+blur.Parent = Lighting
+
+local function applyStyle(obj, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius or 8)
+	corner.Parent = obj
+end
+
+-- ================= LOGIN =================
+local login = Instance.new("Frame")
+login.Size = UDim2.new(0, 350, 0, 250)
+login.Position = UDim2.new(0.5, -175, 0.5, -125)
+login.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+login.Parent = gui
+applyStyle(login, 10)
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8, 0, 0, 45)
+box.Position = UDim2.new(0.1, 0, 0.35, 0)
+box.PlaceholderText = "SENHA"
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+box.Parent = login
+applyStyle(box, 6)
+
+local verify = Instance.new("TextButton")
+verify.Size = UDim2.new(0.8, 0, 0, 45)
+verify.Position = UDim2.new(0.1, 0, 0.65, 0)
+verify.Text = "ENTRAR"
+verify.BackgroundColor3 = ACCENT_COLOR
+verify.TextColor3 = Color3.new(1,1,1)
+verify.Font = Enum.Font.GothamBold
+verify.Parent = login
+applyStyle(verify, 6)
+
+-- ================= HUB =================
+local hub = Instance.new("Frame")
+hub.Size = UDim2.new(0, 500, 0, 400)
+hub.Position = UDim2.new(0.5, -250, 0.5, -200)
+hub.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+hub.Visible = false
+hub.Parent = gui
+applyStyle(hub, 12)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Text = "REBELDE X DRYX - UBG EDITION"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.BackgroundTransparency = 1
+title.Parent = hub
+
+-- ================= SISTEMA DE TOGGLES =================
+
+local function createToggle(name, posY, flagName)
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(0.4, 0, 0, 40)
+	label.Position = UDim2.new(0.05, 0, 0, posY)
+	label.Text = name
+	label.TextColor3 = Color3.new(1,1,1)
+	label.Font = Enum.Font.GothamSemibold
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.BackgroundTransparency = 1
+	label.Parent = hub
+
+	local onBtn = Instance.new("TextButton")
+	onBtn.Size = UDim2.new(0, 80, 0, 30)
+	onBtn.Position = UDim2.new(0.5, 0, 0, posY + 5)
+	onBtn.Text = "ON"
+	onBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+	onBtn.TextColor3 = Color3.new(1,1,1)
+	onBtn.Parent = hub
+	applyStyle(onBtn, 6)
+
+	local offBtn = Instance.new("TextButton")
+	offBtn.Size = UDim2.new(0, 80, 0, 30)
+	offBtn.Position = UDim2.new(0.7, 0, 0, posY + 5)
+	offBtn.Text = "OFF"
+	offBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+	offBtn.TextColor3 = Color3.new(1,1,1)
+	offBtn.Parent = hub
+	applyStyle(offBtn, 6)
+
+	onBtn.MouseButton1Click:Connect(function()
+		Flags[flagName] = true
+		onBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+		offBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+	end)
+
+	offBtn.MouseButton1Click:Connect(function()
+		Flags[flagName] = false
+		offBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+		onBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+	end)
+end
+
+createToggle("HITBOX EXPANDER", 60, "Hitbox")
+createToggle("ANTI-KNOCKBACK", 110, "AntiKnockback")
+createToggle("SPEED HACK", 160, "Speed")
+createToggle("SUPER JUMP", 210, "Jump")
+
+-- ================= LÓGICA DE JOGO (CORE) =================
+
+RunService.Heartbeat:Connect(function()
+	-- 1. Lógica do Hitbox (Ajustada para Ultimate Battlegrounds)
+	if Flags.Hitbox then
+		for _, v in pairs(Players:GetPlayers()) do
+			if v ~= player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+				v.Character.HumanoidRootPart.Size = Vector3.new(12, 12, 12) -- Tamanho ideal para UBG
+				v.Character.HumanoidRootPart.Transparency = 0.7
+				v.Character.HumanoidRootPart.Color = Color3.new(0, 1, 1)
+				v.Character.HumanoidRootPart.CanCollide = false
+			end
+		end
+	end
+
+	-- 2. Anti-Knockback (Deleta forças de empurrão)
+	if Flags.AntiKnockback then
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			for _, v in pairs(player.Character.HumanoidRootPart:GetChildren()) do
+				if v:IsA("BodyVelocity") or v:IsA("BodyPosition") or v:IsA("BodyGyro") then
+					v:Destroy()
+				end
+			end
+		end
+	end
+
+	-- 3. Player Mods
+	local char = player.Character
+	if char and char:FindFirstChild("Humanoid") then
+		if Flags.Speed then char.Humanoid.WalkSpeed = 45 end
+		if Flags.Jump then char.Humanoid.JumpPower = 100 end
+	end
+end)
+
+-- ================= INTERFACE LÓGICA =================
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0, 50, 0, 50)
+openBtn.Position = UDim2.new(0.02, 0, 0.85, 0)
+openBtn.Text = "R"
+openBtn.BackgroundColor3 = ACCENT_COLOR
+openBtn.Visible = false
+openBtn.Parent = gui
+applyStyle(openBtn, 25)
+
+local function toggleHub(state)
+	blur.Enabled = state
+	hub.Visible = state
+	openBtn.Visible = not state
+end
+
+verify.MouseButton1Click:Connect(function()
+	if box.Text == SENHA_CORRETA then login:Destroy() toggleHub(true) end
+end)
+
+openBtn.MouseButton1Click:Connect(function() toggleHub(true) end)
+
+local minBtn = Instance.new("TextButton")
+minBtn.Size = UDim2.new(0, 30, 0, 30)
+minBtn.Position = UDim2.new(1, -35, 0, 5)
+minBtn.Text = "X"
+minBtn.BackgroundTransparency = 1
+minBtn.TextColor3 = Color3.new(1,1,1)
+minBtn.Parent = hub
+minBtn.MouseButton1Click:Connect(function() toggleHub(false) end)
